@@ -55,7 +55,7 @@ jobs:
 
       - name: Prepare APK artifact
         run: |
-          APK=$(find Android/app/build/outputs/apk/debug -name 'soh_release_*.apk' | head -1)
+          APK=$(find Android/app/build/outputs/apk/debug -name '*.apk' | head -1)
           cp "$APK" "soh-test-${{ github.run_number }}.apk"
           sha256sum "soh-test-${{ github.run_number }}.apk" > "soh-test-${{ github.run_number }}.apk.sha256"
 
