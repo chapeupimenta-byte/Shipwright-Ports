@@ -358,7 +358,7 @@ static void aMixImplRef(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t
 void aMixImpl(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr) {
 #if defined(__SSE2__) || defined(_M_AMD64)
     aMixImplSSE2(count, gain, in_addr, out_addr);
-#elif defined(__ARM_NEON) && defined(__aarch64__&& defined(__aarch64__)
+#elif defined(__ARM_NEON) && defined(__aarch64__)
     aMixImplNEON(count, gain, in_addr, out_addr);
 #else
     aMixImplRef(count, gain, in_addr, out_addr);
