@@ -2,9 +2,8 @@ name: Standard Android Release APK
 
 on:
   push:
-    branches: [android-9.3.1-integration]
-  workflow_dispatch:
-  workflow_call:
+    branches: [ main ] # Confira se sua branch não se chama 'master'
+  workflow_dispatch:   
 
 permissions:
   contents: read
