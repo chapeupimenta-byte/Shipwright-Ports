@@ -6,7 +6,6 @@ on:
     branches:
       - '**'
 
-
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -23,8 +22,8 @@ jobs:
 
       - name: Write local.properties
         run: |
-          echo "sdk.dir=${ANDROID_SDK_ROOT}" > Android/local.properties
-          echo "ndk.dir=${ANDROID_NDK_HOME}" >> Android/local.properties
+          echo sdk.dir=${ANDROID_SDK_ROOT} > Android/local.properties
+          echo ndk.dir=${ANDROID_NDK_HOME} >> Android/local.properties
 
       - name: Install host build dependencies
         run: |
@@ -37,27 +36,22 @@ jobs:
           cmake --build build-linux --target GenerateSohOtr --parallel
           cp soh/soh.o2r Android/app/src/main/assets/soh.o2r
 
-      - name: Decode keystore
-        run: |
-          echo '${{ secrets.ANDROID_KEYSTORE_BASE64 }}' | base64 -d > Android/app/release.jks
-
-      - name: Build signed test APK
+      - name: Build optimized test APK
         env:
           GIT_TAG: test-${{ github.run_number }}
+          CFLAGS: "-O3 -DNDEBUG"
+          CXXFLAGS: "-O3 -DNDEBUG"
         run: |
-          cd Android && ./gradlew assembleRelease \
+          cd Android && ./gradlew assembleDebug \
             -PsohApplicationId=com.linkzenic.soh.touchcontroltest \
             -PsohConfigFile=shipofharkinian-touchcontroltest.json \
-            -PstoreFile=release.jks \
-            -PstorePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
-            -PkeyAlias=${{ secrets.ANDROID_KEY_ALIAS }} \
-            -PkeyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+            -DCMAKE_BUILD_TYPE=Release
 
       - name: Prepare APK artifact
         run: |
-          APK=$(find Android/app/build/outputs/apk/release -name '*.apk' | head -1)
-          cp "$APK" "soh-test-${{ github.run_number }}.apk"
-          sha256sum "soh-test-${{ github.run_number }}.apk" > "soh-test-${{ github.run_number }}.apk.sha256"
+          APK=$(find Android/app/build/outputs/apk/debug -name "*.apk" | head -1)
+          cp "$APK" soh-test-${{ github.run_number }}.apk
+          sha256sum soh-test-${{ github.run_number }}.apk > soh-test-${{ github.run_number }}.apk.sha256
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -68,3 +62,4 @@ jobs:
             soh-test-${{ github.run_number }}.apk.sha256
           if-no-files-found: error
           retention-days: 14
+
